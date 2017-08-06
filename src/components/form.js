@@ -6,35 +6,47 @@ class Form extends Component {
     super(props);
 
     this.state = {
-      data: '',
+      currentData: '',
       allData: [],
+      filter: 'all',
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleChecked = this.handleChecked.bind(this);
   }
 
   handleChange(e) {
-    this.setState({data: e.target.value});
+    this.setState({currentData: e.target.value});
   }
 
   handleClick(e) {
     e.preventDefault();
     this.setState({
-      allData: [...this.state.allData, this.state.data],
-      data: '',
+      allData: [...this.state.allData, this.state.currentData],
+      currentData: '',
     });
-    console.log(this.state.data);
+  }
+
+  handleChecked(filterName) {
+    this.setState({filter: filterName});
   }
 
   render() {
     return (
         <div>
           <form>
-            <input type="text" value={this.state.data} onChange={this.handleChange}/>
+            <input type="text" value={this.state.currentData} onChange={this.handleChange}/>
             <button onClick={this.handleClick}>Click me</button>
           </form>
-          <List data={this.state.allData}/>
+
+          <input type="radio" name="StatusChoice" value="all" onClick={() => this.handleChecked('all')} defaultChecked/>
+          all
+          <input type="radio" name="StatusChoice" value="planned" onClick={() => this.handleChecked('planned')}/>
+          planned
+          <input type="radio" name="StatusChoice" value="completed" onClick={() => this.handleChecked('completed')}/>
+          completed
+          <List data={this.state.allData} filter={this.state.filter}/>
         </div>
     );
   }

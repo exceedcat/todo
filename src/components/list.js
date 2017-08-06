@@ -15,22 +15,20 @@ class ListItem extends Component {
 
   render() {
     return (
-        this.state.isCompleted ?
+        this.state.isCompleted && this.props.filter !== 'planned' ?
             <li onClick={this.handleClick}><s>{this.props.data}</s></li> :
-            <li onClick={this.handleClick}>{this.props.data}</li>
+            !this.state.isCompleted && this.props.filter !== 'completed' ?
+                <li onClick={this.handleClick}>{this.props.data}</li> :
+                null
     );
   }
 }
 
 class List extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   // this.props.data = ['temp', 'data'];
-  // }
   render() {
     return (
         <ul>
-          {this.props.data.map((x, i) => <ListItem key={i} data={x}/>)}
+          {this.props.data.map((x, i) => <ListItem key={i} data={x} filter={this.props.filter}/>)}
         </ul>
     );
   }
