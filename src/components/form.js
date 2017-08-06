@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import List from "./list";
+import Radios from "./radios";
 
 class Form extends Component {
   constructor(props) {
@@ -12,7 +13,7 @@ class Form extends Component {
     };
 
     this.handleChange = this.handleChange.bind(this);
-    this.handleClick = this.handleClick.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChecked = this.handleChecked.bind(this);
   }
 
@@ -20,7 +21,7 @@ class Form extends Component {
     this.setState({currentData: e.target.value});
   }
 
-  handleClick(e) {
+  handleSubmit(e) {
     e.preventDefault();
     this.setState({
       allData: [...this.state.allData, this.state.currentData],
@@ -35,17 +36,11 @@ class Form extends Component {
   render() {
     return (
         <div>
-          <form>
+          <form onSubmit={this.handleSubmit}>
             <input type="text" value={this.state.currentData} onChange={this.handleChange}/>
-            <button onClick={this.handleClick}>Click me</button>
+            <button>Click me</button>
           </form>
-
-          <input type="radio" name="StatusChoice" value="all" onClick={() => this.handleChecked('all')} defaultChecked/>
-          all
-          <input type="radio" name="StatusChoice" value="planned" onClick={() => this.handleChecked('planned')}/>
-          planned
-          <input type="radio" name="StatusChoice" value="completed" onClick={() => this.handleChecked('completed')}/>
-          completed
+          <Radios handleChecked={this.handleChecked}/>
           <List data={this.state.allData} filter={this.state.filter}/>
         </div>
     );
