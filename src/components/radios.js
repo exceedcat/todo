@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-class Radios extends Component {
+class RadioGroup extends Component {
   render() {
     return (
         <div>
@@ -17,4 +17,4 @@ class Radios extends Component {
   }
 }
 
-export default Radios;
+export default RadioGroup;

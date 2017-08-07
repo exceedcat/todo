@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import List from "./list";
-import Radios from "./radios";
+import RadioGroup from "./radios";
 
 class Form extends Component {
   constructor(props) {
@@ -12,14 +12,16 @@ class Form extends Component {
       filter: 'all',
     };
 
-    this.handleChange = this.handleChange.bind(this);
+    this.onInputChange = this.onInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChecked = this.handleChecked.bind(this);
-    this.handleClick = this.handleClick.bind(this);
+    this.onItemClick = this.onItemClick.bind(this);
     this.saveChange = this.saveChange.bind(this);
+    this.onDelete = this.onDelete.bind(this);
+    this.changeStatus = this.changeStatus.bind(this);
   }
 
-  handleChange(e) {
+  onInputChange(e) {
     this.setState({
       currentData: e.target.value
     });
@@ -57,22 +59,20 @@ class Form extends Component {
     this.updateLocalStorage(newData);
   }
 
-  // handleClick where item changes its status when is being clicked
-  //
-  // handleClick(item) {
-  //   let data = this.state.allData;
-  //   let newData = [
-  //     ...data.slice(0, data.indexOf(item)),
-  //     {data: item.data, isCompleted: !item.isCompleted},
-  //     ...data.slice(data.indexOf(item) + 1)
-  //   ];
-  //   this.setState({
-  //     allData: newData,
-  //   });
-  //   this.updateLocalStorage(newData);
-  // }
+  changeStatus(item) {
+    let data = this.state.allData;
+    let newData = [
+      ...data.slice(0, data.indexOf(item)),
+      {data: item.data, isCompleted: !item.isCompleted},
+      ...data.slice(data.indexOf(item) + 1)
+    ];
+    this.setState({
+      allData: newData,
+    });
+    this.updateLocalStorage(newData);
+  }
 
-  handleClick(item) {
+  onItemClick(item) {
     let data = this.state.allData;
     let newData = [
       ...data.slice(0, data.indexOf(item)),
@@ -84,6 +84,18 @@ class Form extends Component {
     });
   }
 
+  onDelete(item) {
+    let data = this.state.allData;
+    let newData = [
+      ...data.slice(0, data.indexOf(item)),
+      ...data.slice(data.indexOf(item) + 1)
+    ];
+    this.setState({
+      allData: newData,
+    });
+    this.updateLocalStorage(newData);
+  }
+
   updateLocalStorage(data) {
     localStorage.setItem('todoData', JSON.stringify(data.filter(x => x.data !== '')));
   }
@@ -92,15 +104,17 @@ class Form extends Component {
     return (
         <div>
           <form onSubmit={this.handleSubmit}>
-            <input type="text" value={this.state.currentData} onChange={this.handleChange}/>
+            <input type="text" value={this.state.currentData} onChange={this.onInputChange}/>
             <button>Click me</button>
           </form>
-          <Radios handleChecked={this.handleChecked}/>
+          <RadioGroup handleChecked={this.handleChecked}/>
           <List
               data={this.state.allData}
               filter={this.state.filter}
-              handleClick={this.handleClick}
+              onItemClick={this.onItemClick}
               saveChange={this.saveChange}
+              onDelete={this.onDelete}
+              changeStatus={this.changeStatus}
           />
         </div>
     );
