@@ -16,6 +16,7 @@ class Form extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChecked = this.handleChecked.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.saveChange = this.saveChange.bind(this);
   }
 
   handleChange(e) {
@@ -34,7 +35,7 @@ class Form extends Component {
       allData: newData,
       currentData: '',
     });
-    localStorage.setItem('todoData', JSON.stringify(newData));
+    this.updateLocalStorage(newData);
   }
 
   handleChecked(filter) {
@@ -43,17 +44,48 @@ class Form extends Component {
     });
   }
 
+  saveChange(e) {
+    let item = JSON.parse(e.target.id);
+    let newData = this.state.allData.map(x => x.isEdit ?
+        {
+          data: e.target.value,
+          isCompleted: item.isCompleted
+        } : x);
+    this.setState({
+      allData: newData,
+    });
+    this.updateLocalStorage(newData);
+  }
+
+  // handleClick where item changes its status when is being clicked
+  //
+  // handleClick(item) {
+  //   let data = this.state.allData;
+  //   let newData = [
+  //     ...data.slice(0, data.indexOf(item)),
+  //     {data: item.data, isCompleted: !item.isCompleted},
+  //     ...data.slice(data.indexOf(item) + 1)
+  //   ];
+  //   this.setState({
+  //     allData: newData,
+  //   });
+  //   this.updateLocalStorage(newData);
+  // }
+
   handleClick(item) {
     let data = this.state.allData;
     let newData = [
       ...data.slice(0, data.indexOf(item)),
-      {data: item.data, isCompleted: !item.isCompleted},
+      {data: item.data, isCompleted: item.isCompleted, isEdit: true},
       ...data.slice(data.indexOf(item) + 1)
     ];
     this.setState({
       allData: newData,
     });
-    localStorage.setItem('todoData', JSON.stringify(newData));
+  }
+
+  updateLocalStorage(data) {
+    localStorage.setItem('todoData', JSON.stringify(data.filter(x => x.data !== '')));
   }
 
   render() {
@@ -64,7 +96,12 @@ class Form extends Component {
             <button>Click me</button>
           </form>
           <Radios handleChecked={this.handleChecked}/>
-          <List data={this.state.allData} filter={this.state.filter} handleClick={this.handleClick}/>
+          <List
+              data={this.state.allData}
+              filter={this.state.filter}
+              handleClick={this.handleClick}
+              saveChange={this.saveChange}
+          />
         </div>
     );
   }
