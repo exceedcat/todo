@@ -1,17 +1,21 @@
 import React, {Component} from 'react';
 
+class Radio extends Component {
+  render() {
+    return <div>
+      <input type="radio" name={this.props.name} value={this.props.data}
+             onClick={() => this.props.handleChecked(this.props.data)} defaultChecked={this.props.id === 0}/>
+      {this.props.data}
+    </div>
+  }
+}
+
 class RadioGroup extends Component {
   render() {
     return (
         <div>
-          <input type="radio" name="StatusChoice" value="all" onClick={() => this.props.handleChecked('all')}
-                 defaultChecked/>
-          all
-          <input type="radio" name="StatusChoice" value="planned" onClick={() => this.props.handleChecked('planned')}/>
-          planned
-          <input type="radio" name="StatusChoice" value="completed"
-                 onClick={() => this.props.handleChecked('completed')}/>
-          completed
+          {this.props.data.values.map((x, i) =>
+              <Radio name={this.props.data.name} data={x} key={i} id={i} handleChecked={this.props.handleChecked}/>)}
         </div>
     );
   }

@@ -6,12 +6,14 @@ class List extends Component {
     return (
         <ul>
           {this.props.data.map((x, i) =>
-              x.data &&
-              <ListItem key={i} item={x} filter={this.props.filter}
+              <ListItem key={i} item={x} statusFilter={this.props.statusFilter}
                         onItemClick={this.props.onItemClick}
                         saveChange={this.props.saveChange}
                         onDelete={this.props.onDelete}
-                        changeStatus={this.props.changeStatus}
+                        toggleComplete={this.props.toggleComplete}
+                        getTags={(data) => this.props.getTags(data)}
+                        tagFilter={this.props.tagFilter}
+                        filterByTag={this.props.filterByTag}
               />
           )}
         </ul>

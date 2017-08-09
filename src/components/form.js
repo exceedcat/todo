@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import List from "./list";
-import RadioGroup from "./radios";
+import List from './list';
+import RadioGroup from './radios';
+import SearchField from './searchField';
 
 class Form extends Component {
   constructor(props) {
@@ -8,17 +9,21 @@ class Form extends Component {
 
     this.state = {
       currentData: '',
+      currentDataPriority: 'normal',
       allData: JSON.parse(localStorage.getItem('todoData')) || [],
-      filter: 'all',
+      statusFilter: 'all',
+      tagFilter: '',
     };
 
     this.onInputChange = this.onInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChecked = this.handleChecked.bind(this);
+    this.add = this.add.bind(this);
+    this.filterByStatus = this.filterByStatus.bind(this);
     this.onItemClick = this.onItemClick.bind(this);
     this.saveChange = this.saveChange.bind(this);
     this.onDelete = this.onDelete.bind(this);
-    this.changeStatus = this.changeStatus.bind(this);
+    this.toggleComplete = this.toggleComplete.bind(this);
+    this.handleImportance = this.handleImportance.bind(this);
+    this.filterByTag = this.filterByTag.bind(this);
   }
 
   onInputChange(e) {
@@ -27,11 +32,19 @@ class Form extends Component {
     });
   }
 
-  handleSubmit(e) {
+  add(e) {
     e.preventDefault();
+    if (this.state.currentData === '') {
+      return;
+    }
     let newData = [
       ...this.state.allData,
-      {data: this.state.currentData, isCompleted: false}
+      {
+        data: this.state.currentData,
+        isCompleted: false,
+        priority: this.state.currentDataPriority,
+        tags: this.getTags(this.state.currentData) || [],
+      }
     ];
     this.setState({
       allData: newData,
@@ -40,30 +53,60 @@ class Form extends Component {
     this.updateLocalStorage(newData);
   }
 
-  handleChecked(filter) {
+  //filter radio
+  filterByStatus(status) {
     this.setState({
-      filter: filter
+      statusFilter: status,
     });
   }
 
+  filterByTag(tag) {
+    this.setState({
+      tagFilter: tag,
+    })
+  }
+
+  //priority radio
+  handleImportance(priority) {
+    this.setState({
+      currentDataPriority: priority,
+    })
+  }
+
+  // item clicked
+  onItemClick(item) {
+    console.log(this);
+    console.log(item);
+    let data = this.state.allData;
+    let newData = [
+      ...data.slice(0, data.indexOf(item)),
+      Object.assign(item, {isEdit: true}),
+      ...data.slice(data.indexOf(item) + 1)
+    ];
+    this.setState({
+      allData: newData,
+    });
+  }
+
+  //edit input lost focus
   saveChange(e) {
     let item = JSON.parse(e.target.id);
+    item.tags = this.getTags(item.data) || [];
     let newData = this.state.allData.map(x => x.isEdit ?
-        {
-          data: e.target.value,
-          isCompleted: item.isCompleted
-        } : x);
+        Object.assign(item, {data: e.target.value, isEdit: false}) : x);
+    newData = newData.filter(x => x.data !== '');
     this.setState({
       allData: newData,
     });
     this.updateLocalStorage(newData);
   }
 
-  changeStatus(item) {
+  //complete/uncomplete button clicked
+  toggleComplete(item) {
     let data = this.state.allData;
     let newData = [
       ...data.slice(0, data.indexOf(item)),
-      {data: item.data, isCompleted: !item.isCompleted},
+      Object.assign(item, {isCompleted: !item.isCompleted}),
       ...data.slice(data.indexOf(item) + 1)
     ];
     this.setState({
@@ -72,18 +115,7 @@ class Form extends Component {
     this.updateLocalStorage(newData);
   }
 
-  onItemClick(item) {
-    let data = this.state.allData;
-    let newData = [
-      ...data.slice(0, data.indexOf(item)),
-      {data: item.data, isCompleted: item.isCompleted, isEdit: true},
-      ...data.slice(data.indexOf(item) + 1)
-    ];
-    this.setState({
-      allData: newData,
-    });
-  }
-
+  // button delete clicked
   onDelete(item) {
     let data = this.state.allData;
     let newData = [
@@ -97,24 +129,39 @@ class Form extends Component {
   }
 
   updateLocalStorage(data) {
+    data.forEach((x) => delete x.dataWithTags);
+    console.log(data);
     localStorage.setItem('todoData', JSON.stringify(data.filter(x => x.data !== '')));
+  }
+
+  getTags(data) {
+    return data.match(/\B#[_a-zа-яё0-9]+/gi);
   }
 
   render() {
     return (
         <div>
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.add}>
             <input type="text" value={this.state.currentData} onChange={this.onInputChange}/>
             <button>Click me</button>
           </form>
-          <RadioGroup handleChecked={this.handleChecked}/>
+          <RadioGroup handleChecked={this.handleImportance}
+                      data={{name: 'priorityChoice', values: ['normal', 'medium', 'high']}}
+          />
+          <SearchField data={this.state.tagFilter} resetFilter={this.filterByTag}/>
           <List
               data={this.state.allData}
-              filter={this.state.filter}
+              statusFilter={this.state.statusFilter}
               onItemClick={this.onItemClick}
               saveChange={this.saveChange}
               onDelete={this.onDelete}
-              changeStatus={this.changeStatus}
+              toggleComplete={this.toggleComplete}
+              getTags={(data) => this.getTags(data)}
+              tagFilter={this.state.tagFilter}
+              filterByTag={this.filterByTag}
+          />
+          <RadioGroup handleChecked={this.filterByStatus}
+                      data={{name: 'statusChoice', values: ['all', 'planned', 'completed']}}
           />
         </div>
     );
