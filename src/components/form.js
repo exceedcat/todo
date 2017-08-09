@@ -24,6 +24,7 @@ class Form extends Component {
     this.toggleComplete = this.toggleComplete.bind(this);
     this.handleImportance = this.handleImportance.bind(this);
     this.filterByTag = this.filterByTag.bind(this);
+    this.sortByPriority = this.sortByPriority.bind(this);
   }
 
   onInputChange(e) {
@@ -70,6 +71,19 @@ class Form extends Component {
   handleImportance(priority) {
     this.setState({
       currentDataPriority: priority,
+    })
+  }
+
+  sortByPriority() {
+    this.setState({
+      allData: this.state.allData.sort(function (a, b) {
+        let priority = {
+          'normal': 2,
+          'medium': 1,
+          'high': 0,
+        };
+        return priority[a.priority] - priority[b.priority];
+      })
     })
   }
 
@@ -149,6 +163,7 @@ class Form extends Component {
                       data={{name: 'priorityChoice', values: ['normal', 'medium', 'high']}}
           />
           <SearchField data={this.state.tagFilter} resetFilter={this.filterByTag}/>
+          <button onClick={this.sortByPriority}>Otsortiruite, ples</button>
           <List
               data={this.state.allData}
               statusFilter={this.state.statusFilter}

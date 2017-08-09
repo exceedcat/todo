@@ -5,7 +5,7 @@ class SearchField extends Component {
     return (this.props.data ?
             <div>
               <span>{this.props.data}</span>
-              <button onClick={() => this.props.resetFilter('')}>stop searching</button>
+              <button onClick={() => this.props.resetFilter('')}>stop searching bitches</button>
             </div> : null
     );
   }
